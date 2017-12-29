@@ -24,34 +24,38 @@ export default class Sprite {
         this._isLoad = false;
     }
 
-    onload(cb) {
-        this.img.onload = () => {
-            this._isLoad = true;
-            cb(this)
-        }
+    // 加载完毕
+    loadEnd() {
+        return new Promise((reslove, reject)=>{
+            this.img.onload = () => {
+                this._isLoad = true;
+                reslove(this);
+            }
+        })
+
     }
 
+    // 绘制前调整尺寸
+    adjust(){
+        let sprite = this;
+        let img = sprite.img;
+
+        // 图片比例适应
+        if (typeof sprite.height === 'boolean') {
+            let radio = img.width / img.height;
+            sprite.height = sprite.width / radio;
+        }
+
+        // 根据锚点调整位置
+        let anchor = sprite.anchor;
+        sprite.x -= sprite.width * anchor[0];
+        sprite.y -= sprite.height * anchor[1];
+
+        return sprite
+    }
 
     // 添加节点
-    // todo Scene代理
-    appendTo(ctx) {
-        let draw = () => {
-
-            let img = this.img;
-            if (typeof this.height === 'boolean') {
-                let radio = img.width / img.height;
-                this.height = this.width / radio;
-            }
-
-            ctx.drawImage(
-                img,
-                this.x,
-                this.y,
-                this.width,
-                this.height
-            )
-        };
-
-        this._isLoad ? draw() : this.onload(draw)
+    appendTo(scene) {
+        scene.addChild(this);
     }
 }

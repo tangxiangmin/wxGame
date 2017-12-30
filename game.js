@@ -6,5 +6,6 @@ import './libs/weapp-adapter'
 // new Main()
 
 
+
 import './demo/index'
 

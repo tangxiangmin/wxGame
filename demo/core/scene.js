@@ -1,24 +1,35 @@
 // 游戏场景类
 export default class Scene {
-    constructor(ctx) {
+    constructor(canvas) {
+        let ctx = canvas.getContext("2d");
+
+        this.canvas = canvas;
         this.ctx = ctx;
 
-        this.children = [];
 
+
+        this.children = [];
         this._loadAll = false;
+
+        this.initSize();
     }
+    //===== init ====//
+    initSize(){
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+    }
+
+    //===== api ====//
 
     addChild(sprite) {
         this.children.push(sprite);
     }
 
-    queen() {
+    start() {
         let tasks = [];
         this.children.forEach(sprite => {
             tasks.push(sprite.loadEnd())
         })
-
-        let ctx = this.ctx;
 
         return Promise.all(tasks).then(sprites => {
             this._loadAll = true;
@@ -32,37 +43,17 @@ export default class Scene {
         })
     }
 
+
     render(){
         if (!this._loadAll) {
             return
         }
 
-        this.children.forEach(sprite => {
-            // 图片比例
-            sprite.adjust();
+        let ctx = this.ctx;
+        ctx.clearRect(0, 0, this.width, this.height)
 
-            let x = sprite.x,
-                y = sprite.y,
-                w = sprite.width,
-                h = sprite.height;
-
-
-            let anchor = sprite.anchor;
-            // 根据锚点计算形变中心
-            let originX = x + w * anchor[0],
-                originY = y + h * anchor[1];
-
-            ctx.translate(originX, originY);
-            ctx.rotate(sprite.angle);
-            ctx.translate(-originX, -originY);
-
-            this.ctx.drawImage(
-                sprite.img,
-                sprite.x,
-                sprite.y,
-                sprite.width,
-                sprite.height
-            )
+        this.children.forEach((sprite) => {
+            sprite.render(ctx)
         })
     }
 

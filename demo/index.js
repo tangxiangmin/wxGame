@@ -2,7 +2,7 @@ import Game from "./core/index"
 
 let {Sprite, Scene} = Game
 
-let ctx = canvas.getContext("2d");
+
 const WIDTH = window.screen.availWidth,
     HEIGHT = window.screen.availHeight;
 
@@ -10,39 +10,48 @@ const ANGLE = 6
 
 let game = {
     init() {
-        // todo 根据场景设置内部元素的管理
-        this.scene = new Scene(ctx)
+        this.scene = new Scene(canvas)
 
         this.initBackground()
-
         this.initHour()
         this.initMinute()
         this.initSecond()
 
-        this.scene.queen();
+        // 初始化日期
+        this.initTime();
 
-        this.render()
-
-        // this.scene.render()
-
-
+        // 开始绘制
+        this.scene.start().then(res => {
+            setInterval(() => {
+                this.main();
+            }, 1000)
+        })
     },
-    main(){
+    main() {
+        this.update()
+        this.render()
+        // window.requestAnimationFrame(this.main);
+    },
+    initTime() {
+        let now = new Date();
+        let h = now.getHours(),
+            m = now.getMinutes(),
+            s = now.getSeconds();
 
+        h = h < 12 ? h : h - 12;
+
+        let second = this.second,
+            minute = this.minute,
+            hour = this.hour
+
+        hour.angle = h * 360 / 12;
+        minute.angle = m * ANGLE;
+        second.angle = s * ANGLE;
     },
     render() {
-        // todo 通过生命周期处理游戏流程
-
-        let done = () => {
-            this.update();
-            this.scene.render()
-        }
-
-        return this.scene.render().then(res => {
-        });
+        this.scene.render()
     },
     update() {
-        console.log("update")
         let second = this.second,
             minute = this.minute,
             hour = this.hour

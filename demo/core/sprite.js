@@ -22,15 +22,23 @@ export default class Sprite {
 
         // 图像是否加载完成
         this._isLoad = false;
+
+        // 角度
+        this.angle = 0;
     }
 
     // 加载完毕
     loadEnd() {
         return new Promise((reslove, reject)=>{
-            this.img.onload = () => {
-                this._isLoad = true;
+            if(this._isLoad){
                 reslove(this);
+            }else {
+                this.img.onload = () => {
+                    this._isLoad = true;
+                    reslove(this);
+                }
             }
+
         })
 
     }

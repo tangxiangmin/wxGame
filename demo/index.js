@@ -8,48 +8,16 @@ const WIDTH = window.screen.availWidth,
 
 const ANGLE = 6
 
-let game = {
-    init() {
-        this.scene = new Scene(canvas)
-
-        this.initBackground()
-        this.initHour()
-        this.initMinute()
-        this.initSecond()
-
-        // 初始化日期
-        this.initTime();
-
-        // 开始绘制
-        this.scene.start().then(res => {
-            setInterval(() => {
-                this.main();
-            }, 1000)
-        })
+let scene = new Scene(canvas, {
+    onEnter(){
+        this.init()
+    },
+    onExit(){
+        console.log("exit")
     },
     main() {
         this.update()
         this.render()
-        // window.requestAnimationFrame(this.main);
-    },
-    initTime() {
-        let now = new Date();
-        let h = now.getHours(),
-            m = now.getMinutes(),
-            s = now.getSeconds();
-
-        h = h < 12 ? h : h - 12;
-
-        let second = this.second,
-            minute = this.minute,
-            hour = this.hour
-
-        hour.angle = h * 360 / 12;
-        minute.angle = m * ANGLE;
-        second.angle = s * ANGLE;
-    },
-    render() {
-        this.scene.render()
     },
     update() {
         let second = this.second,
@@ -70,12 +38,38 @@ let game = {
             }
         }
     },
+
+    init(){
+        this.initBackground()
+        this.initHour()
+        this.initMinute()
+        this.initSecond()
+
+        // 初始化日期
+        this.initTime();
+    },
+    initTime() {
+        let now = new Date();
+        let h = now.getHours(),
+            m = now.getMinutes(),
+            s = now.getSeconds();
+
+        h = h < 12 ? h : h - 12;
+
+        let second = this.second,
+            minute = this.minute,
+            hour = this.hour
+
+        hour.angle = h * 360 / 12;
+        minute.angle = m * ANGLE;
+        second.angle = s * ANGLE;
+    },
     initBackground() {
         let bg = new Sprite("assets/background.jpg", WIDTH, true, WIDTH / 2, HEIGHT / 2);
         bg.zIndex = 1;
         bg.anchor = [0.5, 0.5];
 
-        bg.appendTo(this.scene);
+        bg.appendTo(this);
         this.bg = bg
     },
 
@@ -84,7 +78,7 @@ let game = {
         hour.zIndex = 2;
         hour.anchor = [0.5, 0.87];
 
-        hour.appendTo(this.scene);
+        hour.appendTo(this);
 
         this.hour = hour;
     },
@@ -93,7 +87,7 @@ let game = {
         minute.zIndex = 2;
         minute.anchor = [0.5, 0.92];
 
-        minute.appendTo(this.scene);
+        minute.appendTo(this);
 
         this.minute = minute;
     },
@@ -103,14 +97,15 @@ let game = {
         second.anchor = [0.5, 0.93];
 
         second.angle = 90;
-        second.appendTo(this.scene);
+        second.appendTo(this);
 
         this.second = second;
     }
-}
+})
 
 
-game.init();
-
-
-
+scene.start().then(res => {
+    setInterval(() => {
+        scene.main();
+    }, 1000)
+})

@@ -1,22 +1,34 @@
 // 游戏场景类
 export default class Scene {
-    constructor(canvas) {
+    constructor(canvas, opt) {
         let ctx = canvas.getContext("2d");
 
         this.canvas = canvas;
         this.ctx = ctx;
 
 
-
         this.children = [];
         this._loadAll = false;
 
         this.initSize();
+        this.mergeOptions(opt)
+
+        this.onEnter()
     }
+    //===== lifecycle ====//
+    onEnter(){}
+    onExit(){}
+
     //===== init ====//
     initSize(){
         this.width = this.canvas.width;
         this.height = this.canvas.height;
+    }
+
+    mergeOptions(opt){
+        Object.keys(opt).forEach(key=>{
+            this[key] = opt[key].bind(this);
+        })
     }
 
     //===== api ====//
@@ -33,7 +45,7 @@ export default class Scene {
 
         return Promise.all(tasks).then(sprites => {
             this._loadAll = true;
-            // 通过层级决定渲染顺序
+            // drawImage sorted by zIndex
             sprites.sort((a, b) => {
                 return a.zIndex - b.zIndex;
             })
@@ -42,7 +54,6 @@ export default class Scene {
             this.render()
         })
     }
-
 
     render(){
         if (!this._loadAll) {
@@ -55,11 +66,5 @@ export default class Scene {
         this.children.forEach((sprite) => {
             sprite.render(ctx)
         })
-    }
-
-    // 游戏更新
-    update(cb) {
-        cb();
-        window.requestAnimationFrame(this.update.bind(this, cb));
     }
 }
